@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 const HERO_BG = "https://images.unsplash.com/photo-1765396576098-6a44270700d1?w=1600&h=900&fit=crop&auto=format";
 const LOCATIONS = ["Dhaka", "Mirpur", "Uttara", "Dhanmondi", "Mohammadpur", "Bashundhara", "Chattogram", "Sylhet"];
@@ -21,6 +22,8 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ search, setSearch }: HeroSectionProps) {
+    const router = useRouter();
+
     return (
         <section className="relative min-h-145 flex items-center overflow-hidden bg-[#0D1F3C]">
             <img src={HERO_BG} alt="Modern apartment building in Bangladesh" className="absolute inset-0 w-full h-full object-cover opacity-30" />
@@ -88,7 +91,7 @@ export default function HeroSection({ search, setSearch }: HeroSectionProps) {
                             if (search.rentMax) params.set("rentMax", search.rentMax);
                             if (search.beds) params.set("beds", search.beds);
                             const queryString = params.toString();
-                            window.location.href = `/properties${queryString ? `?${queryString}` : ""}`;
+                            router.push(`/properties${queryString ? `?${queryString}` : ""}`);
                         }}
                         className="w-full py-3.5 rounded-xl border-none bg-[#1A4F9E] text-white text-base font-bold cursor-pointer font-['Outfit'] flex items-center justify-center gap-2 hover:bg-[#153f7e] transition-colors"
                     >
