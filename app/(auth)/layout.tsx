@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
     const AUTH_BG = "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&h=1600&fit=crop&auto=format";
@@ -12,7 +13,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
                 {/* Top Logo */}
                 <div className="relative z-10">
-                    <a href="/" className="inline-flex items-center gap-2 text-decoration-none">
+                    <Link href="/" className="inline-flex items-center gap-2 text-decoration-none">
                         <div className="w-9 h-9 bg-[#1A4F9E] rounded-xl flex items-center justify-center">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
                                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -22,7 +23,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                         <span className="font-['Outfit'] font-extrabold text-2xl text-white tracking-tight">
                             To<span className="text-[#0DB678]">Let</span>
                         </span>
-                    </a>
+                    </Link>
                 </div>
 
                 {/* Bottom Banner Content */}

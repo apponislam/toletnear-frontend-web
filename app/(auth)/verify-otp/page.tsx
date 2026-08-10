@@ -3,6 +3,11 @@
 import { useState, useRef, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { z } from 'zod'
+
+const otpSchema = z.object({
+  otp: z.string().length(6, 'OTP code must be exactly 6 digits').regex(/^\d{6}$/, 'OTP code must be numbers only'),
+})
 
 function VerifyOtpContent() {
   const router = useRouter()
@@ -10,10 +15,12 @@ function VerifyOtpContent() {
   const email = searchParams.get('email') || 'your email'
 
   const [otp, setOtp] = useState<string[]>(['', '', '', '', '', ''])
+  const [error, setError] = useState<string | null>(null)
   const otpRefs = useRef<(HTMLInputElement | null)[]>([])
 
   const handleOtpChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return
+    setError(null)
     const newOtp = [...otp]
     newOtp[index] = value.slice(-1)
     setOtp(newOtp)
@@ -31,6 +38,7 @@ function VerifyOtpContent() {
 
   const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault()
+    setError(null)
     const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6)
     if (!pastedData) return
     const newOtp = [...otp]
@@ -44,6 +52,14 @@ function VerifyOtpContent() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    const otpCode = otp.join('')
+    const result = otpSchema.safeParse({ otp: otpCode })
+
+    if (!result.success) {
+      setError(result.error.issues[0]?.message || 'Invalid OTP code')
+      return
+    }
+
     router.push('/reset-password')
   }
 
@@ -51,17 +67,19 @@ function VerifyOtpContent() {
     <div className="w-full">
       <div style={{ padding: '24px 0' }}>
         <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          {/* Mobile Logo */}
-          <div className="lg:hidden" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-            <div style={{ width: 34, height: 34, backgroundColor: '#1A4F9E', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                <rect x="9" y="12" width="6" height="10" fill="white" rx="1"/>
-              </svg>
-            </div>
-            <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: 22, color: '#1A4F9E' }}>
-              To<span style={{ color: '#0DB678' }}>Let</span>
-            </span>
+          {/* Logo Header */}
+          <div style={{ marginBottom: 20 }}>
+            <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+              <div style={{ width: 36, height: 36, backgroundColor: '#1A4F9E', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <rect x="9" y="12" width="6" height="10" fill="white" rx="1"/>
+                </svg>
+              </div>
+              <span style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 800, fontSize: 24, color: '#1A4F9E', letterSpacing: '-0.5px' }}>
+                To<span style={{ color: '#0DB678' }}>Let</span>
+              </span>
+            </Link>
           </div>
 
           <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 22, fontWeight: 700, color: '#0D1F3C', margin: '0 0 6px' }}>
@@ -91,7 +109,7 @@ function VerifyOtpContent() {
                     width: 44,
                     height: 50,
                     borderRadius: 10,
-                    border: `2px solid ${digit ? '#1A4F9E' : '#E2E8F0'}`,
+                    border: `2px solid ${error ? '#EF4444' : digit ? '#1A4F9E' : '#E2E8F0'}`,
                     backgroundColor: digit ? '#EBF2FF' : '#fff',
                     textAlign: 'center',
                     fontSize: 20,
@@ -103,7 +121,11 @@ function VerifyOtpContent() {
                 />
               ))}
             </div>
+            {error && (
+              <p style={{ color: '#EF4444', fontSize: 12, margin: '8px 0 0', textAlign: 'center' }}>{error}</p>
+            )}
           </div>
+
           <button 
             type="submit" 
             disabled={otp.join('').length < 6}
