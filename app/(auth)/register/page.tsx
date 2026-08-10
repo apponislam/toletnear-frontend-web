@@ -21,7 +21,7 @@ export default function RegisterPage() {
 
   return (
     <div className="w-full">
-      <div style={{ backgroundColor: '#fff', borderRadius: 20, padding: '32px 36px', border: '1px solid #E2E8F0', boxShadow: '0 8px 40px rgba(0,0,0,0.08)' }}>
+      <div style={{ padding: '24px 0' }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           {/* Logo visible on small screens when left panel is hidden */}
           <div className="lg:hidden" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
