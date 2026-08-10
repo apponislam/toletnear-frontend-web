@@ -1,203 +1,221 @@
-'use client'
+"use client";
 
-import { useState, use } from 'react'
-import Link from 'next/link'
-import { properties } from '@/data'
-import PropertyCard from '@/components/PropertyCard'
+import { useState, use } from "react";
+import Link from "next/link";
+import { properties } from "@/data";
+import PropertyCard from "@/components/PropertyCard";
 
 interface Props {
-  params: Promise<{ id: string }>
+    params: Promise<{ id: string }>;
 }
 
 export default function PropertyDetailPage({ params }: Props) {
-  const { id } = use(params)
-  const property = properties.find(p => p.id === id) || properties[0]
+    const { id } = use(params);
+    const property = properties.find((p) => p.id === id) || properties[0];
 
-  const [activeImg, setActiveImg] = useState(0)
-  const [saved, setSaved] = useState(false)
-  const [contactOpen, setContactOpen] = useState(false)
+    const [activeImg, setActiveImg] = useState(0);
+    const [saved, setSaved] = useState(false);
+    const [contactOpen, setContactOpen] = useState(false);
 
-  const similar = properties.filter(p => p.id !== property.id && (p.city === property.city || p.type === property.type)).slice(0, 3)
-  const fmt = (n: number) => `৳${n.toLocaleString('en-BD')}`
+    const similar = properties.filter((p) => p.id !== property.id && (p.city === property.city || p.type === property.type)).slice(0, 3);
+    const fmt = (n: number) => `৳${n.toLocaleString("en-BD")}`;
 
-  const ordinal = (n: number) => {
-    if (n === 1) return '1st'
-    if (n === 2) return '2nd'
-    if (n === 3) return '3rd'
-    return `${n}th`
-  }
+    const ordinal = (n: number) => {
+        if (n === 1) return "1st";
+        if (n === 2) return "2nd";
+        if (n === 3) return "3rd";
+        return `${n}th`;
+    };
 
-  return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px' }}>
-      {/* Breadcrumb */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 22, fontSize: 13, color: '#6B7280', flexWrap: 'wrap' }}>
-        <Link href="/" style={{ textDecoration: 'none', color: '#1A4F9E' }}>Home</Link>
-        <span>/</span>
-        <Link href="/properties" style={{ textDecoration: 'none', color: '#1A4F9E' }}>Properties</Link>
-        <span>/</span>
-        <span style={{ maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{property.title}</span>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 28, alignItems: 'start' }} className="lg:grid-cols-[1fr_360px]">
-        {/* Left col */}
-        <div>
-          {/* Gallery */}
-          <div style={{ borderRadius: 16, overflow: 'hidden', backgroundColor: '#E2E8F0', height: 420 }}>
-            <img src={property.images[activeImg]} alt={property.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          </div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-            {property.images.map((img, i) => (
-              <button key={i} onClick={() => setActiveImg(i)} style={{ width: 86, height: 64, borderRadius: 8, overflow: 'hidden', border: `2.5px solid ${i === activeImg ? '#1A4F9E' : 'transparent'}`, background: '#E2E8F0', cursor: 'pointer', padding: 0, flexShrink: 0, transition: 'border-color 0.15s' }}>
-                <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </button>
-            ))}
-          </div>
-
-          {/* Title */}
-          <div style={{ marginTop: 26 }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginBottom: 12 }}>
-              {property.verified && <span style={{ backgroundColor: '#DCFCE7', color: '#16A34A', fontSize: 12, fontWeight: 600, padding: '3px 10px', borderRadius: 20 }}>✓ Verified</span>}
-              <span style={{ backgroundColor: '#EBF2FF', color: '#1A4F9E', fontSize: 12, fontWeight: 500, padding: '3px 10px', borderRadius: 20 }}>{property.type}</span>
-              <span style={{ backgroundColor: '#F3F4F6', color: '#6B7280', fontSize: 12, padding: '3px 10px', borderRadius: 20 }}>{property.furnished}</span>
+    return (
+        <div className="max-w-7xl mx-auto px-6 py-8">
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-1.5 mb-5 text-xs text-slate-500 flex-wrap">
+                <Link href="/" className="no-underline text-[#1A4F9E] hover:underline">
+                    Home
+                </Link>
+                <span>/</span>
+                <Link href="/properties" className="no-underline text-[#1A4F9E] hover:underline">
+                    Properties
+                </Link>
+                <span>/</span>
+                <span className="max-w-65 truncate">{property.title}</span>
             </div>
-            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 26, fontWeight: 800, color: '#0D1F3C', margin: '0 0 10px', lineHeight: 1.2 }}>{property.title}</h1>
-            <p style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#6B7280', fontSize: 15, margin: 0 }}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1A4F9E" strokeWidth="2.5"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-              {property.location}
-            </p>
 
-            {/* Stats */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, backgroundColor: '#F8FAFC', borderRadius: 14, padding: '18px', marginTop: 22, marginBottom: 26 }}>
-              {[
-                { label: 'Bedrooms', value: property.beds > 0 ? `${property.beds} Beds` : 'N/A', icon: '🛏' },
-                { label: 'Bathrooms', value: `${property.baths} Baths`, icon: '🚿' },
-                { label: 'Area', value: `${property.sqft.toLocaleString()} sqft`, icon: '📐' },
-                { label: 'Floor', value: ordinal(property.floor), icon: '🏢' },
-              ].map(s => (
-                <div key={s.label} style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 22, marginBottom: 5 }}>{s.icon}</div>
-                  <div style={{ fontFamily: 'Outfit, sans-serif', fontWeight: 600, color: '#1E293B', fontSize: 14 }}>{s.value}</div>
-                  <div style={{ color: '#9CA3AF', fontSize: 12, marginTop: 2 }}>{s.label}</div>
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-7 items-start">
+                {/* Left col */}
+                <div>
+                    {/* Gallery */}
+                    <div className="rounded-2xl overflow-hidden bg-slate-200 h-105">
+                        <img src={property.images[activeImg]} alt={property.title} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex gap-2 mt-2 overflow-x-auto pb-1">
+                        {property.images.map((img, i) => (
+                            <button key={i} onClick={() => setActiveImg(i)} className={`w-21.5 h-16 rounded-lg overflow-hidden border-2 bg-slate-200 cursor-pointer p-0 shrink-0 transition-colors ${i === activeImg ? "border-[#1A4F9E]" : "border-transparent"}`}>
+                                <img src={img} alt="" className="w-full h-full object-cover" />
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Title */}
+                    <div className="mt-6.5">
+                        <div className="flex flex-wrap gap-1.5 mb-3">
+                            {property.verified && <span className="bg-emerald-100 text-emerald-600 text-xs font-semibold px-2.5 py-0.5 rounded-full">✓ Verified</span>}
+                            <span className="bg-[#EBF2FF] text-[#1A4F9E] text-xs font-medium px-2.5 py-0.5 rounded-full">{property.type}</span>
+                            <span className="bg-slate-100 text-slate-500 text-xs px-2.5 py-0.5 rounded-full">{property.furnished}</span>
+                        </div>
+                        <h1 className="font-['Outfit'] text-26px font-extrabold text-[#0D1F3C] mb-2.5 leading-tight">{property.title}</h1>
+                        <p className="flex items-center gap-1.5 text-slate-500 text-sm m-0">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1A4F9E" strokeWidth="2.5">
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                                <circle cx="12" cy="10" r="3" />
+                            </svg>
+                            {property.location}
+                        </p>
+
+                        {/* Stats */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50 rounded-2xl p-4.5 mt-5.5 mb-6.5 border border-slate-100">
+                            {[
+                                { label: "Bedrooms", value: property.beds > 0 ? `${property.beds} Beds` : "N/A", icon: "🛏" },
+                                { label: "Bathrooms", value: `${property.baths} Baths`, icon: "🚿" },
+                                { label: "Area", value: `${property.sqft.toLocaleString()} sqft`, icon: "📐" },
+                                { label: "Floor", value: ordinal(property.floor), icon: "🏢" },
+                            ].map((s) => (
+                                <div key={s.label} className="text-center">
+                                    <div className="text-2xl mb-1">{s.icon}</div>
+                                    <div className="font-['Outfit'] font-semibold text-slate-800 text-sm">{s.value}</div>
+                                    <div className="text-slate-400 text-xs mt-0.5">{s.label}</div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Description */}
+                        <div className="mb-6.5">
+                            <h3 className="font-['Outfit'] text-lg font-bold text-[#0D1F3C] mb-3">Description</h3>
+                            <p className="text-slate-700 leading-relaxed text-sm m-0">{property.description}</p>
+                        </div>
+
+                        {/* Amenities */}
+                        <div className="mb-6.5">
+                            <h3 className="font-['Outfit'] text-lg font-bold text-[#0D1F3C] mb-3.5">Amenities</h3>
+                            <div className="flex flex-wrap gap-2.5">
+                                {property.amenities.map((a) => (
+                                    <span key={a} className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-sky-50 border border-sky-200 text-sky-700 text-xs font-medium">
+                                        ✓ {a}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Map placeholder */}
+                        <div className="mb-7">
+                            <h3 className="font-['Outfit'] text-lg font-bold text-[#0D1F3C] mb-3">Location</h3>
+                            <div className="bg-slate-100 rounded-2xl h-55 flex items-center justify-center border border-slate-300 overflow-hidden relative">
+                                <div className="absolute inset-0 bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] bg-size-[16px_16px]" />
+                                <div className="text-center relative bg-white/90 px-6 py-4 rounded-xl shadow-xs">
+                                    <div className="text-3xl mb-1.5">📍</div>
+                                    <div className="font-semibold text-slate-700 text-sm">{property.location}</div>
+                                    <div className="text-slate-500 text-xs mt-1">Map integration available on request</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Similar */}
+                        {similar.length > 0 && (
+                            <div>
+                                <h3 className="font-['Outfit'] text-lg font-bold text-[#0D1F3C] mb-4">Similar Properties</h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                                    {similar.map((p) => (
+                                        <PropertyCard key={p.id} property={p} />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
-              ))}
-            </div>
 
-            {/* Description */}
-            <div style={{ marginBottom: 26 }}>
-              <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 18, fontWeight: 700, color: '#0D1F3C', margin: '0 0 12px' }}>Description</h3>
-              <p style={{ color: '#374151', lineHeight: 1.75, fontSize: 15, margin: 0 }}>{property.description}</p>
-            </div>
+                {/* Sidebar */}
+                <div className="sticky top-20">
+                    <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xl">
+                        <div className="mb-5">
+                            <div className="font-['Outfit'] text-32px font-extrabold text-[#1A4F9E]">{fmt(property.rent)}</div>
+                            <div className="text-slate-500 text-xs">per month</div>
+                        </div>
 
-            {/* Amenities */}
-            <div style={{ marginBottom: 26 }}>
-              <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 18, fontWeight: 700, color: '#0D1F3C', margin: '0 0 14px' }}>Amenities</h3>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-                {property.amenities.map(a => (
-                  <span key={a} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 24, backgroundColor: '#F0F9FF', border: '1px solid #BAE6FD', color: '#0369A1', fontSize: 13, fontWeight: 500 }}>
-                    ✓ {a}
-                  </span>
-                ))}
-              </div>
-            </div>
+                        {/* Owner card */}
+                        <div className="flex items-center gap-2.5 mb-5 p-3.5 bg-slate-50 rounded-xl">
+                            <img src={property.owner.image} alt={property.owner.name} className="w-12 h-12 rounded-full object-cover bg-slate-200 shrink-0" />
+                            <div>
+                                <div className="font-semibold text-slate-800 text-sm">{property.owner.name}</div>
+                                <div className="text-slate-500 text-xs">{property.owner.role}</div>
+                                {property.owner.verified && <span className="text-[#0DB678] text-xs font-semibold">✓ Verified</span>}
+                            </div>
+                        </div>
 
-            {/* Map placeholder */}
-            <div style={{ marginBottom: 28 }}>
-              <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 18, fontWeight: 700, color: '#0D1F3C', margin: '0 0 12px' }}>Location</h3>
-              <div style={{ backgroundColor: '#E8EDF5', borderRadius: 14, height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #CBD5E1', overflow: 'hidden', position: 'relative' }}>
-                <div style={{ position: 'absolute', inset: 0, backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(0,0,0,0.05) 40px, rgba(0,0,0,0.05) 41px), repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(0,0,0,0.05) 40px, rgba(0,0,0,0.05) 41px)' }} />
-                <div style={{ textAlign: 'center', position: 'relative', backgroundColor: 'rgba(255,255,255,0.9)', padding: '16px 24px', borderRadius: 12 }}>
-                  <div style={{ fontSize: 32, marginBottom: 6 }}>📍</div>
-                  <div style={{ fontWeight: 600, color: '#374151', fontSize: 15 }}>{property.location}</div>
-                  <div style={{ color: '#6B7280', fontSize: 12, marginTop: 4 }}>Map integration available on request</div>
+                        {/* Actions */}
+                        <div className="flex flex-col gap-2.5 mb-5">
+                            <button onClick={() => setContactOpen(true)} className="w-full py-3.5 rounded-xl border-none bg-[#1A4F9E] text-white text-sm font-bold cursor-pointer font-['Outfit'] flex items-center justify-center gap-2 hover:bg-[#153f7e] transition-colors">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.5a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                                </svg>
+                                Call Owner
+                            </button>
+                            <Link href="/messaging" className="no-underline">
+                                <button className="w-full py-3.5 rounded-xl border border-[#1A4F9E] bg-[#EBF2FF] text-[#1A4F9E] text-sm font-semibold cursor-pointer hover:bg-blue-100/70 transition-colors">💬 Send Message</button>
+                            </Link>
+                            <button onClick={() => setSaved(!saved)} className={`w-full py-3.5 rounded-xl border text-sm font-medium cursor-pointer transition-colors ${saved ? "border-red-400 bg-red-50 text-red-500" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}`}>
+                                {saved ? "❤️ Saved" : "🤍 Save Property"}
+                            </button>
+                        </div>
+
+                        {/* Meta */}
+                        <div className="border-t border-slate-200 pt-4 mb-3.5">
+                            <div className="grid grid-cols-2 gap-3">
+                                {[
+                                    ["Available", property.available],
+                                    ["Floor", ordinal(property.floor)],
+                                    ["Furnished", property.furnished],
+                                    ["City", property.city],
+                                ].map(([k, v]) => (
+                                    <div key={k}>
+                                        <div className="text-slate-400 text-[10px] uppercase tracking-wider mb-0.5">{k}</div>
+                                        <div className="text-slate-800 text-xs font-medium">{v}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <button className="w-full py-2 rounded-lg border border-slate-200 bg-white text-slate-400 text-xs cursor-pointer flex items-center justify-center gap-1 hover:bg-slate-50 transition-colors">🚩 Report this listing</button>
+                    </div>
                 </div>
-              </div>
             </div>
 
-            {/* Similar */}
-            {similar.length > 0 && (
-              <div>
-                <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 18, fontWeight: 700, color: '#0D1F3C', margin: '0 0 16px' }}>Similar Properties</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
-                  {similar.map(p => <PropertyCard key={p.id} property={p} />)}
+            {/* Contact modal */}
+            {contactOpen && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6" onClick={() => setContactOpen(false)}>
+                    <div className="bg-white rounded-2xl p-8 max-w-sm w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                        <h3 className="font-['Outfit'] text-xl font-bold mb-1">Owner Contact</h3>
+                        <p className="text-slate-500 text-sm mb-5">Direct contact details for this property</p>
+                        <div className="bg-slate-50 rounded-xl p-4 mb-5">
+                            <div className="font-semibold text-slate-800 text-sm mb-1">{property.owner.name}</div>
+                            <div className="text-slate-500 text-xs mb-2.5">
+                                {property.owner.role} {property.owner.verified ? "✓ Verified" : ""}
+                            </div>
+                            <a href={`tel:${property.owner.phone}`} className="text-[#1A4F9E] text-base font-bold no-underline font-['Outfit']">
+                                📞 {property.owner.phone}
+                            </a>
+                        </div>
+                        <div className="flex gap-2.5">
+                            <button onClick={() => setContactOpen(false)} className="flex-1 py-2.5 rounded-lg border border-slate-200 bg-white cursor-pointer text-sm font-medium hover:bg-slate-50">
+                                Close
+                            </button>
+                            <Link href="/messaging" className="flex-1 no-underline">
+                                <button className="w-full py-2.5 rounded-lg border-none bg-[#1A4F9E] text-white cursor-pointer text-sm font-semibold hover:bg-[#153f7e]">Message</button>
+                            </Link>
+                        </div>
+                    </div>
                 </div>
-              </div>
             )}
-          </div>
         </div>
-
-        {/* Sidebar */}
-        <div style={{ position: 'sticky', top: 80 }}>
-          <div style={{ backgroundColor: '#fff', borderRadius: 16, padding: '24px', border: '1px solid #E2E8F0', boxShadow: '0 4px 24px rgba(0,0,0,0.08)' }}>
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 800, color: '#1A4F9E' }}>{fmt(property.rent)}</div>
-              <div style={{ color: '#6B7280', fontSize: 14 }}>per month</div>
-            </div>
-
-            {/* Owner card */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, padding: '14px', backgroundColor: '#F8FAFC', borderRadius: 10 }}>
-              <img src={property.owner.image} alt={property.owner.name} style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover', backgroundColor: '#E2E8F0', flexShrink: 0 }} />
-              <div>
-                <div style={{ fontWeight: 600, color: '#1E293B', fontSize: 15 }}>{property.owner.name}</div>
-                <div style={{ color: '#6B7280', fontSize: 12 }}>{property.owner.role}</div>
-                {property.owner.verified && <span style={{ color: '#0DB678', fontSize: 11, fontWeight: 600 }}>✓ Verified</span>}
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-              <button onClick={() => setContactOpen(true)} style={{ width: '100%', padding: '13px', borderRadius: 10, border: 'none', backgroundColor: '#1A4F9E', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.41 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.5a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                Call Owner
-              </button>
-              <Link href="/messaging" style={{ textDecoration: 'none' }}>
-                <button style={{ width: '100%', padding: '13px', borderRadius: 10, border: '1.5px solid #1A4F9E', backgroundColor: '#EBF2FF', color: '#1A4F9E', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
-                  💬 Send Message
-                </button>
-              </Link>
-              <button onClick={() => setSaved(!saved)} style={{ width: '100%', padding: '13px', borderRadius: 10, border: `1.5px solid ${saved ? '#EF4444' : '#E2E8F0'}`, backgroundColor: saved ? '#FEF2F2' : '#fff', color: saved ? '#EF4444' : '#374151', fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>
-                {saved ? '❤️ Saved' : '🤍 Save Property'}
-              </button>
-            </div>
-
-            {/* Meta */}
-            <div style={{ borderTop: '1px solid #E2E8F0', paddingTop: 16, marginBottom: 14 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                {[['Available', property.available], ['Floor', ordinal(property.floor)], ['Furnished', property.furnished], ['City', property.city]].map(([k, v]) => (
-                  <div key={k}>
-                    <div style={{ color: '#9CA3AF', fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 2 }}>{k}</div>
-                    <div style={{ color: '#1E293B', fontSize: 13, fontWeight: 500 }}>{v}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <button style={{ width: '100%', padding: '9px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#fff', color: '#9CA3AF', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5 }}>
-              🚩 Report this listing
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Contact modal */}
-      {contactOpen && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }} onClick={() => setContactOpen(false)}>
-          <div style={{ backgroundColor: '#fff', borderRadius: 18, padding: '32px', maxWidth: 400, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }} onClick={e => e.stopPropagation()}>
-            <h3 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 20, fontWeight: 700, margin: '0 0 6px' }}>Owner Contact</h3>
-            <p style={{ color: '#6B7280', fontSize: 14, margin: '0 0 20px' }}>Direct contact details for this property</p>
-            <div style={{ backgroundColor: '#F8FAFC', borderRadius: 12, padding: '16px', marginBottom: 20 }}>
-              <div style={{ fontWeight: 600, color: '#1E293B', fontSize: 15, marginBottom: 4 }}>{property.owner.name}</div>
-              <div style={{ color: '#6B7280', fontSize: 13, marginBottom: 10 }}>{property.owner.role} {property.owner.verified ? '✓ Verified' : ''}</div>
-              <a href={`tel:${property.owner.phone}`} style={{ color: '#1A4F9E', fontSize: 16, fontWeight: 700, textDecoration: 'none', fontFamily: 'Outfit, sans-serif' }}>📞 {property.owner.phone}</a>
-            </div>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={() => setContactOpen(false)} style={{ flex: 1, padding: '11px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#fff', cursor: 'pointer', fontSize: 14 }}>Close</button>
-              <Link href="/messaging" style={{ flex: 1, textDecoration: 'none' }}>
-                <button style={{ width: '100%', padding: '11px', borderRadius: 8, border: 'none', background: '#1A4F9E', color: '#fff', cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>Message</button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  )
+    );
 }

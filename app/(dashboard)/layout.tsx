@@ -1,12 +1,12 @@
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: '#F4F7FC' }}>
-      <Navbar />
-      <main style={{ flex: 1 }}>{children}</main>
-      <Footer />
-    </div>
-  )
+    return (
+        <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", backgroundColor: "#F4F7FC" }}>
+            <Navbar />
+            <main style={{ flex: 1 }}>{children}</main>
+            <Footer />
+        </div>
+    );
 }
